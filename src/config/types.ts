@@ -3,6 +3,7 @@ export interface BaseInputProps {
   type: string;
   label?: string;
   placeholder?: string;
+  className?: string;
 }
 
 export interface CommonButtonProps {
