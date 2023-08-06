@@ -1,7 +1,7 @@
-import React from "react";
+import GridLayout from "../../Components/GridLayout";
 
 const MainPage = () => {
-  return <div>MainPage</div>;
+  return <GridLayout>MainPage</GridLayout>;
 };
 
 export default MainPage;

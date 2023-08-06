@@ -9,11 +9,9 @@ const Header = () => {
 };
 
 const HeaderContainer = styled.header`
-  display: flex;
-  align-items: flex-end;
-  height: 80px;
-  padding-inline: 80px;
-  box-sizing: border-box;
+  display: grid;
+  grid-column: span 12;
+  align-items: end;
 `;
 
 const Title = styled.h1`
