@@ -7,7 +7,6 @@ const LoginPage = () => {
 
   const onLogin = () => {
     const data = { username, password };
-
     axios
       .post("/login", data)
       .then((res) => {

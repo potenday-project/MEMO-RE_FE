@@ -1,4 +1,4 @@
-import GridLayout from "../../Components/GridLayout";
+import GridLayout from "../../components/GridLayout";
 
 const MainPage = () => {
   return <GridLayout>MainPage</GridLayout>;

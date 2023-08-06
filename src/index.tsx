@@ -1,11 +1,12 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import MainPage from "./Pages/Main";
-import SignUpPage from "./Pages/SignUp";
-import LoginPage from "./Pages/Login";
+import MainPage from "./pages/main";
+import SignUpPage from "./pages/signUp";
+import LoginPage from "./pages/login";
 import axios from "axios";
+import { Provider } from "react-redux";
+import { store } from "./app/store";
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true; // 쿠키를 주고 받을 수 있음
@@ -29,7 +30,7 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </Provider>
 );

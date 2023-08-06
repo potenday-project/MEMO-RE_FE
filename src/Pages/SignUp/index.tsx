@@ -1,9 +1,9 @@
 import { styled } from "styled-components";
-import CommonInput from "../../Components/CommonInput";
+import CommonInput from "../../components/CommonInput";
 import { useState } from "react";
 import axios from "axios";
-import GridHeaderLayout from "../../Components/GridHeaderLayout";
-import SubmitButton from "../../Components/SubmitButton";
+import GridHeaderLayout from "../../components/GridHeaderLayout";
+import SubmitButton from "../../components/SubmitButton";
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
@@ -15,12 +15,14 @@ const SignUpPage = () => {
     axios
       .post("/signUp", data)
       .then((res) => {
+        console.log("✅회원가입 응답", res);
         if (res.status === 200) {
           // 응답 받으면
         }
       })
       .catch((error) => {
         // 에러 처리
+        console.log("🚨회원가입 에러", error);
       });
   };
 
