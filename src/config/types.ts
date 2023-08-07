@@ -1,9 +1,9 @@
-export interface BaseInputProps {
+import React from "react";
+
+export interface CommonInputProps {
   name: string;
   type: string;
-  label?: string;
   placeholder?: string;
-  className?: string;
 }
 
 export interface CommonButtonProps {

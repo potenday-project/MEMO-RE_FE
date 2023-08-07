@@ -1,41 +1,15 @@
 import { styled } from "styled-components";
-import { BaseInputProps } from "../../config/types";
+import { CommonInputProps } from "../../config/types";
 
-const CommonInput = ({
-  type,
-  name,
-  label,
-  placeholder,
-  className,
-}: BaseInputProps) => {
+const CommonInput = ({ type, name, placeholder }: CommonInputProps) => {
   return (
-    <InputWrap>
-      {label ? <span>{label}</span> : null}
-      <StyledInput
-        type={type}
-        name={name}
-        placeholder={`${placeholder ? placeholder : ""}`}
-        className={`${className ? className : ""}`}
-      />
-    </InputWrap>
+    <StyledInput
+      type={type}
+      name={name}
+      placeholder={`${placeholder ? placeholder : ""}`}
+    />
   );
 };
-
-const InputWrap = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-
-  span {
-    display: block;
-    width: 74px;
-
-    color: #000;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 32px;
-  }
-`;
 
 export const StyledInput = styled.input`
   width: 336px;

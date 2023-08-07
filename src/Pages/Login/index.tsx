@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../features/token/accessTokenSlice";
 import GridHeaderLayout from "../../components/GridHeaderLayout";
-import CommonInput from "../../components/CommonInput";
 import SubmitButton from "../../components/SubmitButton";
 import { styled } from "styled-components";
 
@@ -21,28 +20,38 @@ const LoginPage = () => {
 
       // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } catch (e) {
+    } catch (error) {
       // 에러 처리
-      console.log("로그인 에러", e);
+      console.log("로그인 에러", error);
     }
   };
 
   return (
     <GridHeaderLayout>
       <InputField>
-        <CommonInput
-          type="text"
-          name="username"
-          label="아이디"
-          placeholder="아이디를 입력해주세요"
-        />
-        <CommonInput
-          type="password"
-          name="password"
-          label="비밀번호"
-          placeholder="비밀번호를 입력해주세요"
-          className="loginPwInput"
-        />
+        <InputWrap>
+          <span>아이디</span>
+          <StyledInput
+            type="text"
+            name="username"
+            placeholder="아이디를 입력해주세요"
+            onChange={({ target: { value } }) => {
+              setUsername(value);
+            }}
+          />
+        </InputWrap>
+        <InputWrap>
+          <span>비밀번호</span>
+          <StyledInput
+            type="password"
+            name="password"
+            placeholder="비밀번호를 입력해주세요"
+            className="pwInput"
+            onChange={({ target: { value } }) => {
+              setPassword(value);
+            }}
+          />
+        </InputWrap>
       </InputField>
       <SubmitButton onClick={onLogin}>로그인하기</SubmitButton>
     </GridHeaderLayout>
@@ -54,12 +63,48 @@ const InputField = styled.div`
   grid-column: span 12;
   grid-row-gap: 44px;
   align-self: center;
+`;
 
-  input.loginPwInput {
+const InputWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+
+  span {
+    display: block;
+    width: 74px;
+
+    color: #000;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 32px;
+  }
+`;
+
+export const StyledInput = styled.input`
+  width: 336px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 10px;
+
+  color: #000;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 19.2px;
+
+  &.pwInput {
     font-size: 31px;
-    font-weight: 500;
-    line-height: 32.34px;
+    line-height: 32.24px;
     letter-spacing: 5.27px;
+  }
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.176px;
+  }
+  &:focus {
+    border-bottom: 1px solid #000;
   }
 `;
 
