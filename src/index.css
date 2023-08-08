@@ -11,7 +11,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1 {
+h1,
+p {
   margin: 0;
   padding: 0;
 }

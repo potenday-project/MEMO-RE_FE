@@ -112,7 +112,7 @@ const InputWrap = styled.div`
   }
 `;
 
-export const StyledInput = styled.input`
+const StyledInput = styled.input`
   width: 336px;
   border-bottom: 1px solid #000;
   padding-bottom: 10px;

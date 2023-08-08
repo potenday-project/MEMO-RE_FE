@@ -7,6 +7,7 @@ import LoginPage from "./pages/login";
 import axios from "axios";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
+import TagPage from "./pages/tag";
 
 axios.defaults.baseURL = "https://alwaysalsoholiday.xyz";
 axios.defaults.withCredentials = true;
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/tag",
+    element: <TagPage />,
   },
 ]);
 
