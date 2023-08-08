@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/MEMO-RE_FE/static/css/main.e7c0e4a7.css",
+    "main.js": "/MEMO-RE_FE/static/js/main.a34bc004.js",
+    "index.html": "/MEMO-RE_FE/index.html",
+    "main.e7c0e4a7.css.map": "/MEMO-RE_FE/static/css/main.e7c0e4a7.css.map",
+    "main.a34bc004.js.map": "/MEMO-RE_FE/static/js/main.a34bc004.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e7c0e4a7.css",
+    "static/js/main.a34bc004.js"
+  ]
+}
