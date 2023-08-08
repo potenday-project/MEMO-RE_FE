@@ -8,8 +8,8 @@ import axios from "axios";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 
-axios.defaults.baseURL = "http://localhost:8000";
-axios.defaults.withCredentials = true; // 쿠키를 주고 받을 수 있음
+axios.defaults.baseURL = "https://alwaysalsoholiday.xyz";
+axios.defaults.withCredentials = true;
 
 const router = createBrowserRouter([
   {

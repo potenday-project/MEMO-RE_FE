@@ -3,7 +3,7 @@ import { styled } from "styled-components";
 
 const CommonButton = ({ name, onClick, children }: CommonButtonProps) => {
   return (
-    <StyledButton type="submit" name={`${name ? name : ""}`} onSubmit={onClick}>
+    <StyledButton type="submit" name={`${name ? name : ""}`} onClick={onClick}>
       {children}
     </StyledButton>
   );

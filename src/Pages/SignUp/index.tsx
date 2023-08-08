@@ -1,25 +1,58 @@
 import { styled } from "styled-components";
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import GridHeaderLayout from "../../components/GridHeaderLayout";
 import SubmitButton from "../../components/SubmitButton";
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const onSignUp = async () => {
-    const data = { username, password };
+  const handleIdBlur = async (
+    e: React.FocusEvent<HTMLInputElement, Element>
+  ) => {
+    console.log("아이디 유효성 체크");
 
     try {
-      const res = await axios.post("/signUp", data);
-      console.log("회원가입 응답", res);
+      const res = await axios.post("/usernameValid", e.target.value);
 
       if (res.status === 200) {
-        // 응답 받으면
+        console.log("아이디 OK!");
       }
     } catch (error) {
-      // 에러처리
+      console.log("아이디 조건 에러", error);
+      // NOT_VALID: 아이디 조건 이상
+      // USERNAME_DUPL: 아이디 중복
+    }
+  };
+
+  const handlePwBlur = async () => {
+    console.log("비밀번호 유효성 체크");
+    try {
+      const res = await axios.post("/pwdValid", password);
+
+      if (res.status === 200) {
+        console.log("비밀번호 조건 체크 완료!");
+      }
+    } catch (error) {
+      console.log("비밀번호 조건 에러", error);
+      // NOT_VALID: 비밀번호 조건 이상
+    }
+  };
+
+  const onSignUp = async () => {
+    console.log("회원가입 클릭!");
+    try {
+      const data = { username, password };
+      const res = await axios.post("/signUp", data);
+
+      if (res.status === 200) {
+        console.log("회원가입 완료!");
+        navigate("/");
+      }
+    } catch (error) {
       console.log("회원가입 에러", error);
     }
   };
@@ -36,6 +69,7 @@ const SignUpPage = () => {
             onChange={({ target: { value } }) => {
               setUsername(value);
             }}
+            onBlur={(e) => handleIdBlur(e)}
           />
         </InputWrap>
         <InputWrap>
@@ -45,9 +79,8 @@ const SignUpPage = () => {
             name="password"
             placeholder="문자, 숫자 6자 이상 비밀번호"
             className="pwInput"
-            onChange={({ target: { value } }) => {
-              setPassword(value);
-            }}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={handlePwBlur}
           />
         </InputWrap>
       </InputField>

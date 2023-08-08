@@ -21,7 +21,6 @@ const LoginPage = () => {
       // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } catch (error) {
-      // 에러 처리
       console.log("로그인 에러", error);
     }
   };
