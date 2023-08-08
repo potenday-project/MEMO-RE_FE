@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 import React, { useState } from "react";
 import axios from "axios";
-import GridHeaderLayout from "../../components/GridHeaderLayout";
+import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
 
@@ -58,7 +58,7 @@ const SignUpPage = () => {
   };
 
   return (
-    <GridHeaderLayout>
+    <GridLayout logo={true}>
       <InputField>
         <InputWrap>
           <span>아이디</span>
@@ -85,7 +85,7 @@ const SignUpPage = () => {
         </InputWrap>
       </InputField>
       <SubmitButton onClick={onSignUp}>회원가입하기</SubmitButton>
-    </GridHeaderLayout>
+    </GridLayout>
   );
 };
 

@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <HeaderContainer>
-      <Title>MEMO:RE</Title>
+      <Title onClick={() => navigate("/")}>MEMO:RE</Title>
     </HeaderContainer>
   );
 };
@@ -22,6 +25,7 @@ const Title = styled.h1`
   font-size: 36px;
   font-weight: 400;
   line-height: 51px;
+  cursor: pointer;
 `;
 
 export default Header;

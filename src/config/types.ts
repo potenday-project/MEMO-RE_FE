@@ -1,5 +1,10 @@
 import React from "react";
 
+export interface GridLayoutProps {
+  children: React.ReactNode;
+  logo?: boolean;
+}
+
 export interface CommonInputProps {
   name: string;
   type: string;

@@ -1,5 +1,5 @@
 import { styled } from "styled-components";
-import GridHeaderLayout from "../../components/GridHeaderLayout";
+import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { StyledInput } from "../../components/CommonInput";
 import { useEffect, useState } from "react";
@@ -30,7 +30,7 @@ const TagPage = () => {
   };
 
   return (
-    <GridHeaderLayout>
+    <GridLayout logo={true}>
       <Contents>
         <Description>관심가는 주제 3개를 입력해주세요</Description>
         <TagContainer>
@@ -45,7 +45,7 @@ const TagPage = () => {
         value={currentValue}
       />
       <SubmitButton onClick={handleStart}>시작하기</SubmitButton>
-    </GridHeaderLayout>
+    </GridLayout>
   );
 };
 

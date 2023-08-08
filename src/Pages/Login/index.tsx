@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../features/token/accessTokenSlice";
-import GridHeaderLayout from "../../components/GridHeaderLayout";
+import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { styled } from "styled-components";
 
@@ -26,7 +26,7 @@ const LoginPage = () => {
   };
 
   return (
-    <GridHeaderLayout>
+    <GridLayout logo={true}>
       <InputField>
         <InputWrap>
           <span>아이디</span>
@@ -53,7 +53,7 @@ const LoginPage = () => {
         </InputWrap>
       </InputField>
       <SubmitButton onClick={onLogin}>로그인하기</SubmitButton>
-    </GridHeaderLayout>
+    </GridLayout>
   );
 };
 
