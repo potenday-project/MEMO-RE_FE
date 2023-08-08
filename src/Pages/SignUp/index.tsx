@@ -16,13 +16,14 @@ const SignUpPage = () => {
     console.log("아이디 유효성 체크");
 
     try {
-      const res = await axios.post("/usernameValid", e.target.value);
+      const res = await axios.post("/usernameValid", { username: username });
 
       if (res.status === 200) {
         console.log("아이디 OK!");
+        console.log(res);
       }
     } catch (error) {
-      console.log("아이디 조건 에러", error);
+      console.log("아이디 체크 에러", error);
       // NOT_VALID: 아이디 조건 이상
       // USERNAME_DUPL: 아이디 중복
     }
@@ -31,7 +32,7 @@ const SignUpPage = () => {
   const handlePwBlur = async () => {
     console.log("비밀번호 유효성 체크");
     try {
-      const res = await axios.post("/pwdValid", password);
+      const res = await axios.post("/pwdValid", { password: password });
 
       if (res.status === 200) {
         console.log("비밀번호 조건 체크 완료!");
@@ -45,11 +46,11 @@ const SignUpPage = () => {
   const onSignUp = async () => {
     console.log("회원가입 클릭!");
     try {
-      const data = { username, password };
+      const data = { username: username, password: password };
       const res = await axios.post("/signUp", data);
 
       if (res.status === 200) {
-        console.log("회원가입 완료!");
+        console.log("회원가입 완료 데이터", res);
         navigate("/");
       }
     } catch (error) {

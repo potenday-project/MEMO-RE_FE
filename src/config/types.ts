@@ -17,3 +17,9 @@ export interface CommonButtonProps {
   onClick?: () => void;
   children?: React.ReactNode;
 }
+
+export interface StyleLineProps {
+  direction: string;
+  bottom?: string;
+  right?: string;
+}

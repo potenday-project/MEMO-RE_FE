@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import TagPage from "./pages/tag";
 
-axios.defaults.baseURL = "https://alwaysalsoholiday.xyz";
+axios.defaults.baseURL = "http://alwaysalsoholiday.xyz:8080";
 axios.defaults.withCredentials = true;
 
 const router = createBrowserRouter([
