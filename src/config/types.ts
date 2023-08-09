@@ -15,6 +15,7 @@ export interface CommonButtonProps {
   name?: string;
   value?: string;
   onClick?: () => void;
+  disabled?: boolean;
   children?: React.ReactNode;
 }
 

@@ -3,6 +3,7 @@ import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { StyledInput } from "../../components/CommonInput";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 type TagsType = string[];
 
@@ -25,8 +26,18 @@ const TagPage = () => {
     }
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     console.log("시작하기");
+    try {
+      const res = await axios.post("/", { tag: tags });
+      if (res.status === 200) {
+        console.log("태그 정보 전송 완료!", res);
+      }
+    } catch (error) {
+      // 에러 처리
+      // USER_NOT_FOUND : 로그인 유저가 아닐 때
+      // TAG_NOT_VALID : 태그 길이가 너무 김
+    }
   };
 
   return (

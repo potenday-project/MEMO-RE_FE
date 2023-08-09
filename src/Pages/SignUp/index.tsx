@@ -8,49 +8,87 @@ import { useNavigate } from "react-router-dom";
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState({
+    success: "",
+    error: "",
+  });
   const navigate = useNavigate();
+
+  const idReg = /[^?a-zA-Z0-9/]/; // 한글, 특수문자, 공백 체크
+  const pwReg = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"\s]/g; // 특수문자, 공백 체크
 
   const handleIdBlur = async (
     e: React.FocusEvent<HTMLInputElement, Element>
   ) => {
-    console.log("아이디 유효성 체크");
-
+    const { value } = e.target;
     try {
-      const res = await axios.post("/usernameValid", { username: username });
+      // JS 아이디 유효성 검사
+      if (value.length <= 3) {
+        setMessage({ ...message, error: "아이디가 너무 짧습니다" });
+        return;
+      }
+      if (idReg.test(value)) {
+        setMessage({
+          ...message,
+          error: "아이디에 한글, 특수문자, 공백을 포함할 수 없습니다",
+        });
+        return;
+      }
+      setMessage({ ...message, error: "" });
 
+      // 서버 아이디 유효성 검사
+      const res = await axios.post("/usernameValid", { username: username });
       if (res.status === 200) {
-        console.log("아이디 OK!");
-        console.log(res);
+        setMessage({
+          ...message,
+          success: "사용 가능한 아이디입니다",
+        });
+        console.log("ID OK!", res);
       }
     } catch (error) {
-      console.log("아이디 체크 에러", error);
-      // NOT_VALID: 아이디 조건 이상
+      console.log("ID Failed", error); // NOT_VALID: 아이디 조건 이상
       // USERNAME_DUPL: 아이디 중복
+      setMessage({
+        ...message,
+        error: "사용중인 아이디입니다",
+      });
     }
   };
 
-  const handlePwBlur = async () => {
-    console.log("비밀번호 유효성 체크");
+  const handlePwBlur = (e: React.FocusEvent<HTMLInputElement, Element>) => {
+    const { value } = e.target;
     try {
-      const res = await axios.post("/pwdValid", { password: password });
-
-      if (res.status === 200) {
-        console.log("비밀번호 조건 체크 완료!");
+      // JS 비밀번호 유효성 검사
+      if (value.length <= 5 || value.length >= 16) {
+        setMessage({
+          ...message,
+          error: "비밀번호는 6글자 이상, 15글자 이하만 이용 가능합니다",
+        });
+        return;
       }
-    } catch (error) {
-      console.log("비밀번호 조건 에러", error);
-      // NOT_VALID: 비밀번호 조건 이상
+      if (pwReg.test(value)) {
+        setMessage({
+          ...message,
+          error: "비밀번호에 특수문자, 공백을 포함할 수 없습니다",
+        });
+        return;
+      }
+      setMessage({ ...message, error: "" });
+    } catch (erorr) {
+      // 에러처리
     }
   };
 
   const onSignUp = async () => {
-    console.log("회원가입 클릭!");
     try {
+      if ([username, password].includes("")) {
+        alert("빈 칸을 모두 입력해주세요!");
+        return;
+      }
       const data = { username: username, password: password };
       const res = await axios.post("/signUp", data);
-
       if (res.status === 200) {
-        console.log("회원가입 완료 데이터", res);
+        console.log("회원가입 완료", res);
         navigate("/");
       }
     } catch (error) {
@@ -81,12 +119,19 @@ const SignUpPage = () => {
               name="password"
               placeholder="문자, 숫자 6자 이상 비밀번호"
               className="pwInput"
-              onChange={(e) => setPassword(e.target.value)}
-              onBlur={handlePwBlur}
+              onChange={({ target: { value } }) => setPassword(value)}
+              onBlur={(e) => handlePwBlur(e)}
             />
           </InputWrap>
+          {message.error ? (
+            <StatusMessage className="error">{message.error}</StatusMessage>
+          ) : (
+            <StatusMessage className="success">{message.success}</StatusMessage>
+          )}
         </InputField>
-        <SubmitButton onClick={onSignUp}>회원가입하기</SubmitButton>
+        <SubmitButton onClick={onSignUp} disabled={!!message.error}>
+          회원가입하기
+        </SubmitButton>
       </Container>
     </GridLayout>
   );
@@ -146,6 +191,17 @@ const StyledInput = styled.input`
   }
   &:focus {
     border-bottom: 1px solid #000;
+  }
+`;
+
+const StatusMessage = styled.p`
+  font-size: 12px;
+  text-align: center;
+  &.error {
+    color: red;
+  }
+  &.success {
+    color: green;
   }
 `;
 
