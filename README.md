@@ -11,3 +11,5 @@ yarn start
 
 - React
 - TypeScript
+- Redux-Toolkit
+- Styled-Components
