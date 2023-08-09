@@ -30,7 +30,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": "http://potenday-project.github.io/MEMO-RE_FE/",
+  "homepage": "http://songeunn.github.io/MEMO-RE_FE/",
   "eslintConfig": {
     "extends": [
       "react-app",
