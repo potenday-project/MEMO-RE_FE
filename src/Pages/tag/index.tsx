@@ -32,28 +32,39 @@ const TagPage = () => {
   return (
     <GridLayout logo={true}>
       <Contents>
-        <Description>관심가는 주제 3개를 입력해주세요</Description>
-        <TagContainer>
-          {tags ? tags.map((tag, idx) => <Tag key={idx}>#{tag}</Tag>) : null}
-        </TagContainer>
+        <LeftSide>
+          <Description>관심가는 주제 3개를 입력해주세요</Description>
+          <TagContainer>
+            {tags ? tags.map((tag, idx) => <Tag key={idx}>#{tag}</Tag>) : null}
+          </TagContainer>
+          <TagInput
+            type="text"
+            placeholder="#제외 10자이내"
+            onChange={(e) => setCurrentValue(e.target.value)}
+            onKeyDownCapture={(e) => addTag(e)}
+            value={currentValue}
+          />
+        </LeftSide>
+        <RightSide>
+          <SubmitButton onClick={handleStart}>시작하기</SubmitButton>
+        </RightSide>
       </Contents>
-      <TagInput
-        type="text"
-        placeholder="#제외 10자이내"
-        onChange={(e) => setCurrentValue(e.target.value)}
-        onKeyDownCapture={(e) => addTag(e)}
-        value={currentValue}
-      />
-      <SubmitButton onClick={handleStart}>시작하기</SubmitButton>
     </GridLayout>
   );
 };
 
 const Contents = styled.main`
-  position: relative;
   grid-column: span 12;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+`;
+
+const LeftSide = styled.section`
+  position: relative;
+`;
+
+const RightSide = styled.section`
+  position: relative;
 `;
 
 const Description = styled.p`
@@ -63,13 +74,15 @@ const Description = styled.p`
   font-size: 20px;
   font-weight: 400;
   line-height: 29px;
+  margin-top: 12px;
 `;
 
 const TagContainer = styled.div`
-  grid-column: 1fr;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-end;
+  height: 100%;
   gap: 59px;
 `;
 
@@ -81,8 +94,8 @@ const Tag = styled.span`
 
 const TagInput = styled(StyledInput)`
   position: absolute;
-  bottom: 80px;
-  left: 80px;
+  bottom: 0;
+  right: 0;
   display: block;
 
   padding-bottom: 0;

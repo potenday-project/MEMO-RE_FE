@@ -11,9 +11,9 @@ const CommonButton = ({ name, onClick, children }: CommonButtonProps) => {
 
 const StyledButton = styled.button`
   position: absolute;
-  bottom: 80px;
+  bottom: 0;
+  right: 0;
   display: block;
-  right: 80px;
   width: 248px;
   border-bottom: 1px solid #000;
 

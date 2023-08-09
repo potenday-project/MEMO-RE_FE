@@ -26,7 +26,7 @@ const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: 80px 1fr 80px;
-  gap: 16px;
+  column-gap: 16px;
   width: 1200px;
   padding-inline: 80px;
   box-sizing: border-box;

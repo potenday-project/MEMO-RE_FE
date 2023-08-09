@@ -60,41 +60,50 @@ const SignUpPage = () => {
 
   return (
     <GridLayout logo={true}>
-      <InputField>
-        <InputWrap>
-          <span>아이디</span>
-          <StyledInput
-            type="text"
-            name="username"
-            placeholder="영어 소문자와 숫자 4자 이상 아이디"
-            onChange={({ target: { value } }) => {
-              setUsername(value);
-            }}
-            onBlur={(e) => handleIdBlur(e)}
-          />
-        </InputWrap>
-        <InputWrap>
-          <span>비밀번호</span>
-          <StyledInput
-            type="password"
-            name="password"
-            placeholder="문자, 숫자 6자 이상 비밀번호"
-            className="pwInput"
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={handlePwBlur}
-          />
-        </InputWrap>
-      </InputField>
-      <SubmitButton onClick={onSignUp}>회원가입하기</SubmitButton>
+      <Container>
+        <InputField>
+          <InputWrap>
+            <span>아이디</span>
+            <StyledInput
+              type="text"
+              name="username"
+              placeholder="영어 소문자와 숫자 4자 이상 아이디"
+              onChange={({ target: { value } }) => {
+                setUsername(value);
+              }}
+              onBlur={(e) => handleIdBlur(e)}
+            />
+          </InputWrap>
+          <InputWrap>
+            <span>비밀번호</span>
+            <StyledInput
+              type="password"
+              name="password"
+              placeholder="문자, 숫자 6자 이상 비밀번호"
+              className="pwInput"
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={handlePwBlur}
+            />
+          </InputWrap>
+        </InputField>
+        <SubmitButton onClick={onSignUp}>회원가입하기</SubmitButton>
+      </Container>
     </GridLayout>
   );
 };
 
+const Container = styled.section`
+  position: relative;
+  grid-column: span 12;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const InputField = styled.div`
   display: grid;
-  grid-column: span 12;
   grid-row-gap: 44px;
-  align-self: center;
 `;
 
 const InputWrap = styled.div`
