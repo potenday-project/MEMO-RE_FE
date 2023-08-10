@@ -47,6 +47,7 @@ const SignUpPage = () => {
       }
     } catch (error) {
       console.log("ID Failed", error); // NOT_VALID: 아이디 조건 이상
+
       // USERNAME_DUPL: 아이디 중복
       setMessage({
         ...message,

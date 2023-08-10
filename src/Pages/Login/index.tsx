@@ -17,11 +17,12 @@ const LoginPage = () => {
       const res = await axios.post("/login", data);
       const { token } = res.data;
       dispatch(setToken(token));
+      console.log("Login response", res);
 
       // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } catch (error) {
-      console.log("로그인 에러", error);
+      console.log("Login Error", error);
     }
   };
 

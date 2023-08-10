@@ -1,4 +1,5 @@
 import React from "react";
+import { store } from "../app/store";
 
 export interface GridLayoutProps {
   children: React.ReactNode;
@@ -24,3 +25,5 @@ export interface StyleLineProps {
   bottom?: string;
   right?: string;
 }
+
+export type RootState = ReturnType<typeof store.getState>;

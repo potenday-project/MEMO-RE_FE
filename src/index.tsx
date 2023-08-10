@@ -1,35 +1,15 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import MainPage from "./pages/main";
-import SignUpPage from "./pages/signUp";
-import LoginPage from "./pages/login";
 import axios from "axios";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import TagPage from "./pages/tag";
+import { routerInfo } from "./pages/router";
 
 axios.defaults.baseURL = "http://alwaysalsoholiday.xyz:8080";
 axios.defaults.withCredentials = true;
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainPage />,
-  },
-  {
-    path: "/signup",
-    element: <SignUpPage />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/tag",
-    element: <TagPage />,
-  },
-]);
+const router = createBrowserRouter(routerInfo);
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

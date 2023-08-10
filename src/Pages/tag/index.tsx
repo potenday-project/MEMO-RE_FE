@@ -13,7 +13,8 @@ const TagPage = () => {
 
   useEffect(() => {}, [tags]);
 
-  const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // 처음 3개 태그 입력
+  const addInitialTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.nativeEvent.isComposing) return; // 엔터 이벤트 중복 방지
     if (e.key === "Enter") {
       if (tags.length === 3) {
@@ -28,6 +29,9 @@ const TagPage = () => {
 
   const handleStart = async () => {
     console.log("시작하기");
+    if (tags.length < 3) {
+      alert("3개의 주제를 입력해주세요!✨");
+    }
     try {
       const res = await axios.post("/", { tag: tags });
       if (res.status === 200) {
@@ -52,7 +56,7 @@ const TagPage = () => {
             type="text"
             placeholder="#제외 10자이내"
             onChange={(e) => setCurrentValue(e.target.value)}
-            onKeyDownCapture={(e) => addTag(e)}
+            onKeyDownCapture={(e) => addInitialTag(e)}
             value={currentValue}
           />
         </LeftSide>
