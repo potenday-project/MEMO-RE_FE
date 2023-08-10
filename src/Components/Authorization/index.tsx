@@ -6,12 +6,13 @@ import { useNavigate } from "react-router-dom";
 const Authorization = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
 
-  const auth = useSelector((state: RootState) => state.accessToken);
+  // const auth = useSelector((state: RootState) => state.accessToken);
+  const auth = true;
   console.log("is Auth ?", auth);
 
   useEffect(() => {
     if (!auth) {
-      console.log("현재 권한이 없습니다");
+      console.log("권한이 없습니다");
       navigate("/");
     }
   }, [auth, navigate]);

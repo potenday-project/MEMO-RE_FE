@@ -9,14 +9,11 @@ const RootPage = () => {
   return (
     <GridLayout>
       <Container>
-        <DummyField>
-          <StyleBox />
-        </DummyField>
         <Contents>
           <Title>MEMO:RE</Title>
           <SubTitle>Meta Memo System</SubTitle>
           <Description>
-            {`우리는 새로운 메모방식을 제안 합니다. \n블로그는 태그로 관리하면서 왜 메모는 태그로 관리하지 않을까요? \nMEMO:RE는 메모의 핵심 키워드를 태그별로 관리할 수 있는 기능을 제공합니다. 메모를 기억하기 쉬워지고 그렇게 기억한 메모는 활용하기 쉽습니다. \n일상의 메모를 관리하기 위해 MEMO:RE를 사용해 보세요.`}
+            {`우리는 새로운 메모방식을 제안 합니다. \n블로그는 태그로 관리하면서 왜 메모는 태그로 관리하지 않을까요? \nMEMO:RE는 메모의 핵심 키워드를 태그별로 관리할 수 있는 기능을 제공합니다. \n메모를 기억하기 쉬워지고 그렇게 기억한 메모는 활용하기 쉽습니다. \n일상의 메모를 관리하기 위해 MEMO:RE를 사용해 보세요.`}
           </Description>
           <ButtonField>
             <SignUpButton onClick={() => navigate("/signup")}>
@@ -39,25 +36,14 @@ const Container = styled.main`
   grid-column: span 12;
 
   display: grid;
-  grid-template-rows: 112px 1fr;
-  grid-template-columns: 2fr 10fr;
-  grid-template-areas:
-    "area1 area2"
-    "area3 area4";
-`;
-const DummyField = styled.div`
-  grid-area: area2;
-`;
-const StyleBox = styled.div`
-  width: 23px;
-  height: 100%;
-  background: #d9d9d9;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Contents = styled.section`
-  position: relative;
-  grid-area: area4;
+  width: 100%;
 `;
+
 const Title = styled.h1`
   font-size: 88px;
   font-weight: 400;
@@ -69,10 +55,10 @@ const SubTitle = styled.h3`
 `;
 
 const Description = styled.p`
-  width: 545px;
-  font-size: 20px;
+  width: 688px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 34px;
+  line-height: 29px;
   display: block;
   margin-top: 30px;
   white-space: pre-wrap;
@@ -99,6 +85,7 @@ const LoginButton = styled(SignUpButton)``;
 
 const StyleLineW = styled.hr<StyleLineProps>`
   position: absolute;
+  top: ${({ direction }) => (direction === "row" ? `0` : `null`)};
   width: ${({ direction }) => (direction === "row" ? `248px` : `1px`)};
   height: ${({ direction }) => (direction === "row" ? `1px` : `248px`)};
   border: 0;
@@ -107,6 +94,7 @@ const StyleLineW = styled.hr<StyleLineProps>`
     bottom: 0;
   }
   &.right {
+    top: 0;
     right: 0;
   }
 `;

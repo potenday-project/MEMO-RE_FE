@@ -9,12 +9,14 @@ const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState({
-    success: "",
-    error: "",
+    idSuccess: "",
+    idError: "",
+    pwError: "",
   });
   const navigate = useNavigate();
 
-  const idReg = /[^?a-zA-Z0-9/]/; // 한글, 특수문자, 공백 체크
+  const idReg =
+    /^(?=.*[ㄱ-ㅎㅏ-ㅣ가-힣A-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/; // 한글, 대문자, 특수문자, 공백 체크
   const pwReg = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"\s]/g; // 특수문자, 공백 체크
 
   const handleIdBlur = async (
@@ -23,25 +25,28 @@ const SignUpPage = () => {
     const { value } = e.target;
     try {
       // JS 아이디 유효성 검사
-      if (value.length <= 3) {
-        setMessage({ ...message, error: "아이디가 너무 짧습니다" });
+      if (value.length <= 3 || value.length >= 16) {
+        setMessage({
+          ...message,
+          idError: "4자 이상, 15자 이하만 가능합니다.",
+        });
         return;
       }
       if (idReg.test(value)) {
         setMessage({
           ...message,
-          error: "아이디에 한글, 특수문자, 공백을 포함할 수 없습니다",
+          idError: "한글, 대문자, 특수문자, 공백은 포함할 수 없습니다",
         });
         return;
       }
-      setMessage({ ...message, error: "" });
+      setMessage({ ...message, idError: "" });
 
       // 서버 아이디 유효성 검사
       const res = await axios.post("/usernameValid", { username: username });
       if (res.status === 200) {
         setMessage({
           ...message,
-          success: "사용 가능한 아이디입니다",
+          idSuccess: "사용 가능한 아이디입니다",
         });
         console.log("ID OK!", res);
       }
@@ -51,7 +56,7 @@ const SignUpPage = () => {
       // USERNAME_DUPL: 아이디 중복
       setMessage({
         ...message,
-        error: "사용중인 아이디입니다",
+        idError: "사용중인 아이디입니다",
       });
     }
   };
@@ -63,18 +68,18 @@ const SignUpPage = () => {
       if (value.length <= 5 || value.length >= 16) {
         setMessage({
           ...message,
-          error: "비밀번호는 6글자 이상, 15글자 이하만 이용 가능합니다",
+          pwError: "6자 이상, 15글자 이하만 가능합니다.",
         });
         return;
       }
       if (pwReg.test(value)) {
         setMessage({
           ...message,
-          error: "비밀번호에 특수문자, 공백을 포함할 수 없습니다",
+          pwError: "특수문자, 공백을 포함할 수 없습니다.",
         });
         return;
       }
-      setMessage({ ...message, error: "" });
+      setMessage({ ...message, pwError: "" });
     } catch (erorr) {
       // 에러처리
     }
@@ -86,6 +91,10 @@ const SignUpPage = () => {
         alert("빈 칸을 모두 입력해주세요!");
         return;
       }
+      if (message.idError || message.pwError) {
+        return;
+      }
+      console.log("회원가입 요청");
       const data = { username: username, password: password };
       const res = await axios.post("/signUp", data);
       if (res.status === 200) {
@@ -103,36 +112,49 @@ const SignUpPage = () => {
         <InputField>
           <InputWrap>
             <span>아이디</span>
-            <StyledInput
-              type="text"
-              name="username"
-              placeholder="영어 소문자와 숫자 4자 이상 아이디"
-              onChange={({ target: { value } }) => {
-                setUsername(value);
-              }}
-              onBlur={(e) => handleIdBlur(e)}
-            />
+            <StatusWrap>
+              {message.idError ? (
+                <StatusMessage className="error">
+                  {message.idError}
+                </StatusMessage>
+              ) : (
+                <StatusMessage className="success">
+                  {message.idSuccess}
+                </StatusMessage>
+              )}
+              <StyledInput
+                type="text"
+                name="username"
+                placeholder="영어 소문자와 숫자 4자 이상 아이디"
+                onChange={({ target: { value } }) => {
+                  setUsername(value);
+                }}
+                onBlur={(e) => handleIdBlur(e)}
+              />
+            </StatusWrap>
           </InputWrap>
           <InputWrap>
             <span>비밀번호</span>
-            <StyledInput
-              type="password"
-              name="password"
-              placeholder="문자, 숫자 6자 이상 비밀번호"
-              className="pwInput"
-              onChange={({ target: { value } }) => setPassword(value)}
-              onBlur={(e) => handlePwBlur(e)}
-            />
+            <StatusWrap>
+              {message.pwError ? (
+                <StatusMessage className="error">
+                  {message.pwError}
+                </StatusMessage>
+              ) : (
+                <StatusMessage>{}</StatusMessage>
+              )}
+              <StyledInput
+                type="password"
+                name="password"
+                placeholder="문자, 숫자 6자 이상 비밀번호"
+                className="pwInput"
+                onChange={({ target: { value } }) => setPassword(value)}
+                onBlur={(e) => handlePwBlur(e)}
+              />
+            </StatusWrap>
           </InputWrap>
-          {message.error ? (
-            <StatusMessage className="error">{message.error}</StatusMessage>
-          ) : (
-            <StatusMessage className="success">{message.success}</StatusMessage>
-          )}
         </InputField>
-        <SubmitButton onClick={onSignUp} disabled={!!message.error}>
-          회원가입하기
-        </SubmitButton>
+        <SubmitButton onClick={onSignUp}>회원가입하기</SubmitButton>
       </Container>
     </GridLayout>
   );
@@ -149,11 +171,12 @@ const Container = styled.section`
 
 const InputField = styled.div`
   display: grid;
-  grid-row-gap: 44px;
+  grid-row-gap: 28.5px;
 `;
 
 const InputWrap = styled.div`
   display: flex;
+  align-items: flex-end;
   justify-content: center;
   gap: 20px;
 
@@ -197,13 +220,21 @@ const StyledInput = styled.input`
 
 const StatusMessage = styled.p`
   font-size: 12px;
-  text-align: center;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: -0.132px;
   &.error {
-    color: red;
+    color: #ff2424;
   }
   &.success {
     color: green;
   }
+`;
+
+const StatusWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
 `;
 
 export default SignUpPage;
