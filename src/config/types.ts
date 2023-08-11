@@ -27,3 +27,19 @@ export interface StyleLineProps {
 }
 
 export type RootState = ReturnType<typeof store.getState>;
+
+////////////////////////////////////////////////////// 개별 Props
+
+export interface ControllerProps {
+  $isEditing: boolean;
+}
+
+export interface TagListProps {
+  $isEditing: boolean;
+}
+
+export interface FormProps {
+  keyword: string;
+  content: string;
+  tag: string[];
+}

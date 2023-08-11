@@ -34,7 +34,7 @@ const GridContainer = styled.div`
 const ContentsLayout = styled.section`
   grid-column: span 12;
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 1fr 3fr;
 `;
 
 const DummyField = styled.div`
