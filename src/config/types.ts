@@ -43,3 +43,12 @@ export interface FormProps {
   content: string;
   tag: string[];
 }
+
+export interface MemoCardProps {
+  selected: boolean;
+}
+
+export interface MemoStatusProps {
+  content?: boolean;
+  tag?: boolean;
+}
