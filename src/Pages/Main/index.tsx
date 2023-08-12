@@ -14,9 +14,11 @@ import TextArea from "antd/es/input/TextArea";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteMemoList,
+  setMemoList,
   updateMemo,
 } from "../../features/memoList/memoListSlice";
 import axios from "axios";
+import { useInView } from "react-intersection-observer";
 
 const MainPage = () => {
   const [selected, setSelected] = useState<FormProps>({
@@ -24,12 +26,48 @@ const MainPage = () => {
     content: "",
     tag: [],
   });
-  const [memoModalOpen, setMemoModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [data, setData] = useState<FormProps[]>([]); // GET 조회해온 값
+  const [page, setPage] = useState(0); // 요청할 페이지 상태값
+  const [ref, inView] = useInView();
+
   const dispatch = useDispatch();
   const tagList = useSelector((state: RootState) => state.tagList);
   const memoList: FormProps[] = useSelector(
     (state: RootState) => state.memoList
   );
+
+  const getListData = async () => {
+    // 요청 코드 (메모 조회)
+    try {
+      const res = await axios.get(`/memo?pageNumber=${page}`);
+      console.log("메모 조회", res);
+      if (res.status === 200) {
+        // 받아오는 값 확인후에
+        // dispatch로 메모 리스트 상태관리 코드 작성하기
+        dispatch(setMemoList(res));
+        setPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.log("메모 조회 에러", error);
+    }
+  };
+
+  useEffect(() => {
+    if (inView) {
+      if (memoList.length >= 12) {
+        // getListData();
+        dispatch(
+          setMemoList({
+            keyword: `더미${page}`,
+            content: "더미",
+            tag: [],
+          })
+        );
+        setPage((prev) => prev + 1);
+      }
+    }
+  }, [inView]);
 
   // 태그 옵션
   const options = tagList.map((item) => {
@@ -41,9 +79,6 @@ const MainPage = () => {
 
   // 메모 클릭
   const handleClickCard = (item: FormProps) => {
-    if (!item.content && !!!item.tag.length) {
-      return;
-    }
     setSelected({
       ...selected,
       keyword: item.keyword,
@@ -63,7 +98,7 @@ const MainPage = () => {
   // 메모 수정
   const onEditForm = async (curMemo: FormProps) => {
     dispatch(updateMemo(selected));
-    setMemoModalOpen(false);
+    setEditModalOpen(false);
 
     // 요청 코드 (메모 수정)
     try {
@@ -102,7 +137,6 @@ const MainPage = () => {
   return (
     <MainLayout>
       <Sidebar />
-
       <Contents $empty={!memoList.length}>
         {memoList.length ? (
           memoList.map((memo: FormProps) => (
@@ -114,9 +148,9 @@ const MainPage = () => {
                 className="memoAddModal"
                 title="메모 수정"
                 centered
-                open={memoModalOpen}
+                open={editModalOpen}
                 onOk={() => onEditForm(memo)}
-                onCancel={() => setMemoModalOpen(false)}
+                onCancel={() => setEditModalOpen(false)}
                 okText="수정"
                 cancelText="취소"
               >
@@ -172,10 +206,10 @@ const MainPage = () => {
               {selected.keyword === memo.keyword ? (
                 <>
                   <CardController>
-                    <button onClick={() => setMemoModalOpen(true)}>수정</button>
+                    <button onClick={() => setEditModalOpen(true)}>수정</button>
                     <button onClick={() => onDeleteMemo(memo)}>삭제</button>
                   </CardController>
-                  <CardBack onClick={() => handleClickCard(memo)}>
+                  <MemoBack onClick={() => handleClickCard(memo)}>
                     <MemoBackContent $content={!!memo.content}>
                       {memo.content}
                     </MemoBackContent>
@@ -186,22 +220,23 @@ const MainPage = () => {
                         ))}
                       </TagWrap>
                     ) : null}
-                  </CardBack>
+                  </MemoBack>
                 </>
               ) : (
-                <CardFront onClick={() => handleClickCard(memo)}>
+                <MemoFront onClick={() => handleClickCard(memo)}>
                   <MemoFrontContent>{memo.keyword}</MemoFrontContent>
                   <StatusBox
                     $content={!!memo.content}
                     $tag={!!memo.tag.length}
                   />
-                </CardFront>
+                </MemoFront>
               )}
             </CardWrap>
           ))
         ) : (
           <Phrase>Possibility Becomes Everything</Phrase>
         )}
+        <ScrollObserver ref={ref} />
       </Contents>
     </MainLayout>
   );
@@ -211,7 +246,7 @@ const Contents = styled.div<MainEmptyProps>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   row-gap: 60px;
-  column-gap: 16px;
+  column-gap: 20px;
   width: 100%;
   height: ${({ $empty }) => ($empty ? `100%` : `fit-content`)};
   place-items: ${({ $empty }) => ($empty ? `center` : `none`)};
@@ -235,7 +270,7 @@ const CardWrap = styled.div<MemoCardProps>`
   scrollbar-width: none; // 파이어폭스
 `;
 
-// 카드 수정/삭제 버튼
+// 메모 수정/삭제 버튼
 const CardController = styled.div`
   position: absolute;
   right: 0;
@@ -248,18 +283,18 @@ const CardController = styled.div`
   }
 `;
 
-// 카드 앞면
-const CardFront = styled.div`
+// 메모 앞면
+const MemoFront = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   height: fit-content;
   padding-block: 52px;
-  height: 60px;
+  height: 80px;
 `;
 
-// 카드 앞면 콘텐츠
+// 메모 앞면 콘텐츠
 const MemoFrontContent = styled.div`
   display: flex;
   justify-content: center;
@@ -286,8 +321,8 @@ const StatusBox = styled.div<MemoStatusProps>`
   box-sizing: border-box;
 `;
 
-// 카드 뒷면
-const CardBack = styled.div`
+// 메모 뒷면
+const MemoBack = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -295,7 +330,7 @@ const CardBack = styled.div`
   align-items: center;
 `;
 
-// 카드 뒷면 콘텐츠
+// 메모 뒷면 콘텐츠
 const MemoBackContent = styled.div<MemoStatusProps>`
   display: ${({ $content }) => ($content ? `flex` : `none`)};
   justify-content: center;
@@ -304,7 +339,7 @@ const MemoBackContent = styled.div<MemoStatusProps>`
   line-height: 25px;
 `;
 
-// 카드 내 태그리스트
+// 메모 내 태그리스트
 const TagWrap = styled.div<MemoStatusProps>`
   width: 90%;
   display: flex;
@@ -313,7 +348,7 @@ const TagWrap = styled.div<MemoStatusProps>`
   padding-block: ${({ $content }) => ($content ? "0" : "16px")};
 `;
 
-// 카드 내 각 태그
+// 메모 내 각 태그
 const MemoTag = styled.div`
   border-block: 1px solid #000;
   padding-inline: 10px;
@@ -329,6 +364,11 @@ const Phrase = styled.span`
   grid-column: span 3;
   font-size: 43px;
   text-align: center;
+`;
+
+const ScrollObserver = styled.div`
+  position: absolute;
+  bottom: 0;
 `;
 
 const LineWrap = styled.div`
