@@ -1,10 +1,10 @@
-import Authorization from "../components/Authorization";
-import NotFound from "./error";
-import LoginPage from "./login";
-import MainPage from "./main";
-import RootPage from "./root";
-import SignUpPage from "./signUp";
-import TagPage from "./tag";
+import Authorization from "./components/Authorization";
+import NotFound from "./pages/error";
+import LoginPage from "./pages/login";
+import MainPage from "./pages/main";
+import RootPage from "./pages/root";
+import SignUpPage from "./pages/signUp";
+import TagPage from "./pages/tag";
 
 export const routerChildrenInfo = [
   {

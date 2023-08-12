@@ -5,7 +5,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import axios from "axios";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import { routerInfo } from "./pages/router";
+import { routerInfo } from "./router";
 import { ConfigProvider } from "antd";
 
 axios.defaults.baseURL = "http://alwaysalsoholiday.xyz:8080";
