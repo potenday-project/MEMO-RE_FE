@@ -4,7 +4,15 @@ import DeleteButton from "../Icons/DeleteButton";
 import { useState } from "react";
 import { message, Modal, Input, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { ControllerProps, FormProps, TagListProps } from "../../config/types";
+import {
+  ControllerProps,
+  FormProps,
+  RootState,
+  TagListProps,
+} from "../../config/types";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTagList, setTagList } from "../../features/tagList/tagListSlice";
+import { setMemoList } from "../../features/memoList/memoListSlice";
 
 const ADD = "add";
 const DEL = "del";
@@ -13,7 +21,7 @@ const Sidebar = () => {
   const [addable, setAddable] = useState(false);
   const [deletable, setDeletable] = useState(false);
   const [tag, setTag] = useState("");
-  const [tagList, setTagList] = useState<string[]>([]);
+
   const [inputCount, setInputCount] = useState(0);
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const [memoModalOpen, setMemoModalOpen] = useState(false);
@@ -22,6 +30,9 @@ const Sidebar = () => {
     content: "",
     tag: [],
   });
+
+  const dispatch = useDispatch();
+  const tagList = useSelector((state: RootState) => state.tagList);
 
   const [messageApi, contextHolder] = message.useMessage();
   const { confirm } = Modal;
@@ -50,10 +61,7 @@ const Sidebar = () => {
       cancelText: "취소",
       centered: true,
       onOk() {
-        console.log("OK");
-      },
-      onCancel() {
-        console.log("Cancel");
+        dispatch(deleteTagList(checkedList));
       },
     });
   };
@@ -81,14 +89,14 @@ const Sidebar = () => {
         showMessage("👀 태그를 입력해주세요");
         return;
       }
-      setTagList([...tagList, tag]);
+      dispatch(setTagList(tag));
       setTag("");
       setInputCount(0);
       showMessage("✨ 태그를 추가했어요!");
     }
     if (type === DEL) {
+      if (!checkedList.length) return;
       showConfirm();
-      setTagList(tagList.filter((data) => !checkedList.includes(data)));
       setCheckedList([]);
     }
   };
@@ -117,7 +125,7 @@ const Sidebar = () => {
   // 메모 등록
   const onSubmitForm = () => {
     if (!modalForm.keyword) return;
-    console.log(modalForm);
+    dispatch(setMemoList(modalForm));
     setModalForm({ ...modalForm, keyword: "", content: "", tag: [] });
     setMemoModalOpen(false);
   };
@@ -347,8 +355,8 @@ const CheckCircle = styled.div`
 `;
 
 const MemoButton = styled.button`
-  position: absolute;
-  bottom: 0;
+  position: fixed;
+  bottom: 80px;
   width: 160px;
   display: block;
   padding-bottom: 18px;

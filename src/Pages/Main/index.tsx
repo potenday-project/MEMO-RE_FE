@@ -1,134 +1,187 @@
 import { styled } from "styled-components";
 import MainLayout from "../../components/MainLayout";
 import Sidebar from "../../components/Sidebar";
-import { useState } from "react";
-import { FormProps, MemoCardProps, MemoStatusProps } from "../../config/types";
+import { useEffect, useState } from "react";
+import {
+  FormProps,
+  MainEmptyProps,
+  MemoCardProps,
+  MemoStatusProps,
+  RootState,
+} from "../../config/types";
+import { Input, Modal, Select } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteMemoList,
+  updateMemo,
+} from "../../features/memoList/memoListSlice";
 
 const MainPage = () => {
-  const [memoList, setMemoList] = useState([
-    {
-      keyword: "핵심키워드를 길게 적은 버전 어쩌구 저쩌구",
-      content: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Numquam voluptate, dolorem rem incidunt perspiciatis dicta quam accusamus voluptas aperiam similique non nisi sequi temporibus tempore neque nulla. Consequatur, veritatis voluptas?`,
-      tag: [
-        "태그1",
-        "태그2",
-        "태그3",
-        "태그4",
-        "태그5",
-        "태그6",
-        "감각과디자인",
-        "더미태그",
-      ],
-    },
-    {
-      keyword: "핵심키워드2",
-      content: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Numquam voluptate, dolorem rem incidunt perspiciatis dicta quam accusamus voluptas aperiam similique non nisi sequi temporibus tempore neque nulla. Consequatur, veritatis voluptas?`,
-      tag: [],
-    },
-    {
-      keyword: "핵심키워드3",
-      content: ``,
-      tag: [
-        "태그1",
-        "태그2",
-        "태그3",
-        "태그4",
-        "태그5",
-        "태그6",
-        "감각과디자인",
-        "더미태그",
-        "어쩌고",
-      ],
-    },
-    {
-      keyword: "핵심키워드4",
-      content: ``,
-      tag: [],
-    },
-    {
-      keyword: "Possiblity",
-      content: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Numquam voluptate, dolorem rem incidunt perspiciatis dicta quam accusamus voluptas aperiam similique non nisi sequi temporibus tempore neque nulla. Consequatur, veritatis voluptas?`,
-      tag: ["태그1", "태그2", "태그3"],
-    },
-    {
-      keyword: "핵심키워드이거20글자까지사오육칠팔구십",
-      content: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Numquam voluptate, dolorem rem incidunt perspiciatis dicta quam accusamus voluptas aperiam similique non nisi sequi temporibus tempore neque nulla. Consequatur, veritatis voluptas?`,
-      tag: [
-        "태그1",
-        "태그2",
-        "태그3",
-        "태그4",
-        "태그5",
-        "태그6",
-        "감각과디자인",
-        "더미태그",
-      ],
-    },
-  ]);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<FormProps>({
+    keyword: "",
+    content: "",
+    tag: [],
+  });
+  const [memoModalOpen, setMemoModalOpen] = useState(false);
+  const dispatch = useDispatch();
+  const tagList = useSelector((state: RootState) => state.tagList);
+  const memoList: FormProps[] = useSelector(
+    (state: RootState) => state.memoList
+  );
+
+  useEffect(() => {}, [memoList]);
+
+  const options = tagList.map((item) => {
+    return {
+      label: item,
+      value: item,
+    };
+  });
 
   const handleClickCard = (item: FormProps) => {
     if (!item.content && !!!item.tag.length) {
       return;
     }
-    setSelected(item.keyword);
-    if (item.keyword === selected) {
-      setSelected("");
+    setSelected({
+      ...selected,
+      keyword: item.keyword,
+      content: item.content,
+      tag: item.tag,
+    });
+    if (item.keyword === selected.keyword) {
+      setSelected({
+        ...selected,
+        keyword: "",
+        content: "",
+        tag: [],
+      });
     }
+  };
+
+  const onEditForm = () => {
+    dispatch(updateMemo(selected));
+    setMemoModalOpen(false);
+    // 메모리스트 다시 가져오기
   };
 
   return (
     <MainLayout>
+      <Modal
+        className="memoAddModal"
+        title="메모 수정"
+        centered
+        open={memoModalOpen}
+        onOk={onEditForm}
+        onCancel={() => setMemoModalOpen(false)}
+        okText="수정"
+        cancelText="취소"
+      >
+        <LineWrap>
+          <Title>
+            <span className="must">*</span>메타 키워드:
+          </Title>
+          <Input
+            placeholder="핵심 키워드"
+            showCount
+            maxLength={20}
+            value={selected.keyword}
+            onChange={(e) =>
+              setSelected({ ...selected, keyword: e.target.value })
+            }
+          />
+        </LineWrap>
+        <LineWrap>
+          <Title>중요한 이유:</Title>
+          <TextArea
+            showCount
+            maxLength={100}
+            value={selected.content}
+            placeholder="위의 키워드가 중요하다고 생각한 이유를 함께 적어놓으면 나중에 활용하는데 도움이 됩니다"
+            onChange={(e) =>
+              setSelected({ ...selected, content: e.target.value })
+            }
+          />
+        </LineWrap>
+        <LineWrap>
+          <Title>주제 태그:</Title>
+          <Select
+            mode="multiple"
+            placeholder="태그를 선택해주세요"
+            options={options}
+            className="tagSelectInput"
+            value={selected.tag}
+            onSelect={(value) =>
+              setSelected({ ...selected, tag: [...selected.tag, value] })
+            }
+            onDeselect={(value) =>
+              setSelected({
+                ...selected,
+                tag: selected.tag.filter((v) => v !== value),
+              })
+            }
+          />
+        </LineWrap>
+      </Modal>
       <Sidebar />
-      {memoList.length ? (
-        <Contents>
-          {memoList.map((memo) => (
+
+      <Contents $empty={!memoList.length}>
+        {memoList.length ? (
+          memoList.map((memo: FormProps) => (
             <CardWrap
-              onClick={() => handleClickCard(memo)}
               key={memo.keyword}
-              selected={selected === memo.keyword}
+              selected={selected.keyword === memo.keyword}
             >
-              <CardController>
-                <button>수정</button>
-                <button>삭제</button>
-              </CardController>
-              {selected === memo.keyword ? (
-                <CardBack>
-                  <MemoBackContent content={!!memo.content}>
-                    {memo.content}
-                  </MemoBackContent>
-                  {memo.tag.length > 0 ? (
-                    <TagWrap content={!!memo.content}>
-                      {memo.tag.map((item, idx) => (
-                        <MemoTag key={idx}>#{item}</MemoTag>
-                      ))}
-                    </TagWrap>
-                  ) : null}
-                </CardBack>
+              {selected.keyword === memo.keyword ? (
+                <>
+                  <CardController>
+                    <button onClick={() => setMemoModalOpen(true)}>수정</button>
+                    <button
+                      onClick={() => dispatch(deleteMemoList(memo.keyword))}
+                    >
+                      삭제
+                    </button>
+                  </CardController>
+                  <CardBack onClick={() => handleClickCard(memo)}>
+                    <MemoBackContent $content={!!memo.content}>
+                      {memo.content}
+                    </MemoBackContent>
+                    {memo.tag.length > 0 ? (
+                      <TagWrap $content={!!memo.content}>
+                        {memo.tag.map((item, idx) => (
+                          <MemoTag key={idx}>#{item}</MemoTag>
+                        ))}
+                      </TagWrap>
+                    ) : null}
+                  </CardBack>
+                </>
               ) : (
-                <CardFront>
+                <CardFront onClick={() => handleClickCard(memo)}>
                   <MemoFrontContent>{memo.keyword}</MemoFrontContent>
-                  <StatusBox content={!!memo.content} tag={!!memo.tag.length} />
+                  <StatusBox
+                    $content={!!memo.content}
+                    $tag={!!memo.tag.length}
+                  />
                 </CardFront>
               )}
             </CardWrap>
-          ))}
-        </Contents>
-      ) : (
-        <Contents>
+          ))
+        ) : (
           <Phrase>Possibility Becomes Everything</Phrase>
-        </Contents>
-      )}
+        )}
+      </Contents>
     </MainLayout>
   );
 };
 
-const Contents = styled.div`
+const Contents = styled.div<MainEmptyProps>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  row-gap: 60px;
+  column-gap: 16px;
   width: 100%;
-  height: fit-content;
-  gap: 16px;
+  height: ${({ $empty }) => ($empty ? `100%` : `fit-content`)};
+  place-items: ${({ $empty }) => ($empty ? `center` : `none`)};
 `;
 
 // 카드 한 칸
@@ -141,7 +194,7 @@ const CardWrap = styled.div<MemoCardProps>`
     selected ? `transparent` : `1px solid #000`};
   border-inline: ${({ selected }) => (selected ? `1px solid #000` : `none`)};
   margin-bottom: 30px;
-  overflow-x: auto;
+  box-sizing: border-box;
   &::-webkit-scrollbar {
     display: none; /* 크롬, 사파리, 오페라, 엣지 동작 */
   }
@@ -167,8 +220,10 @@ const CardFront = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   height: fit-content;
   padding-block: 52px;
+  height: 60px;
 `;
 
 // 카드 앞면 콘텐츠
@@ -189,12 +244,12 @@ const StatusBox = styled.div<MemoStatusProps>`
   bottom: 0;
   right: 0;
   margin-bottom: -1px;
-  background-color: ${({ content, tag }) =>
-    content && tag ? `#000` : `transparent`};
-  border-inline: ${({ content, tag }) =>
-    content && !tag ? `1px solid #000` : `none`};
-  border-block: ${({ content, tag }) =>
-    !content && tag ? `1px solid #000` : `none`};
+  background-color: ${({ $content, $tag }) =>
+    $content && $tag ? `#000` : `transparent`};
+  border-inline: ${({ $content, $tag }) =>
+    $content && !$tag ? `1px solid #000` : `none`};
+  border-block: ${({ $content, $tag }) =>
+    !$content && $tag ? `1px solid #000` : `none`};
   box-sizing: border-box;
 `;
 
@@ -209,7 +264,7 @@ const CardBack = styled.div`
 
 // 카드 뒷면 콘텐츠
 const MemoBackContent = styled.div<MemoStatusProps>`
-  display: ${({ content }) => (content ? `flex` : `none`)};
+  display: ${({ $content }) => ($content ? `flex` : `none`)};
   justify-content: center;
   width: 75%;
   padding-block: 30px;
@@ -222,7 +277,7 @@ const TagWrap = styled.div<MemoStatusProps>`
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  padding-block: ${({ content }) => (content ? "0" : "16px")};
+  padding-block: ${({ $content }) => ($content ? "0" : "16px")};
 `;
 
 // 카드 내 각 태그
@@ -238,8 +293,25 @@ const MemoTag = styled.div`
 
 // 빈 메모 메인 문구
 const Phrase = styled.span`
+  grid-column: span 3;
   font-size: 43px;
   text-align: center;
+`;
+
+const LineWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  input {
+    width: 300px;
+  }
+`;
+
+const Title = styled.span`
+  font-size: 16px;
+  .must {
+    color: red;
+  }
 `;
 
 export default MainPage;
