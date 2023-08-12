@@ -24,7 +24,8 @@ const Sidebar = () => {
   const [tag, setTag] = useState("");
 
   const [inputCount, setInputCount] = useState(0);
-  const [checkedList, setCheckedList] = useState<string[]>([]);
+  const [checkedTag, setCheckedTag] = useState("");
+
   const [memoModalOpen, setMemoModalOpen] = useState(false);
   const [modalForm, setModalForm] = useState<FormProps>({
     keyword: "",
@@ -62,7 +63,7 @@ const Sidebar = () => {
       cancelText: "취소",
       centered: true,
       onOk() {
-        dispatch(deleteTagList(checkedList));
+        dispatch(deleteTagList(checkedTag));
       },
     });
   };
@@ -103,16 +104,15 @@ const Sidebar = () => {
           console.log("태그 추가 Response", res);
         }
       } catch (error) {
-        // 에러 처리
         console.log("태그 추가 에러", error);
         // USER_NOT_FOUND: 로그인된 유저가 아님
         // NOT_VALID: 태그 양식 문제
       }
     }
     if (type === DEL) {
-      if (!checkedList.length) return;
+      if (!checkedTag) return;
       showConfirm();
-      setCheckedList([]);
+      setCheckedTag("");
 
       // 요청 코드 (태그 삭제)
       try {
@@ -142,11 +142,11 @@ const Sidebar = () => {
     }
   };
 
-  // 삭제 시 다중 체크 핸들러
+  // 태그 단일 체크
   const checkHandler = (tag: string) => {
-    setCheckedList([...checkedList, tag]);
-    if (checkedList.includes(tag)) {
-      setCheckedList(checkedList.filter((v) => v !== tag));
+    setCheckedTag(tag);
+    if (checkedTag === tag) {
+      setCheckedTag("");
     }
   };
 
@@ -273,7 +273,7 @@ const Sidebar = () => {
                 <label>
                   <input
                     type="checkbox"
-                    checked={checkedList.includes(tag)}
+                    checked={tag === checkedTag}
                     onChange={(e) => checkHandler(tag)}
                   />
                   <CheckCircle className="checkbox" />
