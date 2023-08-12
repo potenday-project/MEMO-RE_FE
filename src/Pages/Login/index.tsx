@@ -14,6 +14,7 @@ const LoginPage = () => {
   const onLogin = async () => {
     const data = { username, password };
     try {
+      // 요청 코드 (로그인)
       const res = await axios.post("/login", data);
       const { token } = res.data;
       dispatch(setToken(token));
@@ -23,6 +24,8 @@ const LoginPage = () => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } catch (error) {
       console.log("Login Error", error);
+      // BAD_USERNAME: 아이디 이상
+      // BAD_PWD: 패스워드 이상
     }
   };
 

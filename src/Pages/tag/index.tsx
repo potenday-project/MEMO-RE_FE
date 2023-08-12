@@ -28,17 +28,19 @@ const TagPage = () => {
   };
 
   const handleStart = async () => {
-    console.log("시작하기");
     if (tags.length < 3) {
       alert("3개의 주제를 입력해주세요!✨");
     }
+
+    // 요청 코드 (메인 3개 태그 추가)
     try {
-      const res = await axios.post("/", { tag: tags });
+      const res = await axios.post("/", tags);
       if (res.status === 200) {
-        console.log("태그 정보 전송 완료!", res);
+        console.log("메인 3개 태그 Response", res);
       }
     } catch (error) {
       // 에러 처리
+      console.log("메인 3개 태그 추가 에러", error);
       // USER_NOT_FOUND : 로그인 유저가 아닐 때
       // TAG_NOT_VALID : 태그 길이가 너무 김
     }

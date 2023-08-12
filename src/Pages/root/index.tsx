@@ -2,9 +2,16 @@ import { styled } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import GridLayout from "../../components/GridLayout";
 import { StyleLineProps } from "../../config/types";
+import useAuthenticated from "../../hooks/useAuthenticated";
+import { useEffect } from "react";
 
 const RootPage = () => {
   const navigate = useNavigate();
+  const auth = useAuthenticated();
+
+  useEffect(() => {
+    if (auth) navigate("/main");
+  });
 
   return (
     <GridLayout>

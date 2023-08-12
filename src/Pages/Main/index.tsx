@@ -16,6 +16,7 @@ import {
   deleteMemoList,
   updateMemo,
 } from "../../features/memoList/memoListSlice";
+import axios from "axios";
 
 const MainPage = () => {
   const [selected, setSelected] = useState<FormProps>({
@@ -30,8 +31,7 @@ const MainPage = () => {
     (state: RootState) => state.memoList
   );
 
-  useEffect(() => {}, [memoList]);
-
+  // 태그 옵션
   const options = tagList.map((item) => {
     return {
       label: item,
@@ -39,6 +39,7 @@ const MainPage = () => {
     };
   });
 
+  // 메모 클릭
   const handleClickCard = (item: FormProps) => {
     if (!item.content && !!!item.tag.length) {
       return;
@@ -59,70 +60,47 @@ const MainPage = () => {
     }
   };
 
-  const onEditForm = () => {
+  // 메모 수정
+  const onEditForm = async (curMemo: FormProps) => {
     dispatch(updateMemo(selected));
     setMemoModalOpen(false);
-    // 메모리스트 다시 가져오기
+
+    // 요청 코드 (메모 수정)
+    try {
+      const res = await axios.patch("/memo", {
+        originKey: curMemo.keyword,
+        newKey: selected.keyword,
+        content: selected.content,
+        tag: selected.tag,
+      });
+      if (res.status === 200) {
+        console.log("/mainSidebar - 태그 등록 요청!", res);
+        // 메모리스트 다시 가져오기
+      }
+    } catch (error) {
+      // 에러 처리
+      console.log("/main Sidebar 태그 추가 에러", error);
+      // NOT_FOUND: 해당 키워드 메모가 없음
+      // BAD: 본인 메모가 아님
+    }
+  };
+
+  // 메모 삭제
+  const onDeleteMemo = async (memo: FormProps) => {
+    // 요청 코드 (메모 삭제)
+    try {
+      dispatch(deleteMemoList(memo.keyword));
+      const res = await axios.delete(`/tag?name=${memo.keyword}`);
+      if (res.status === 200) {
+        console.log("메모 삭제 Response", res);
+      }
+    } catch (error) {
+      console.log("메모 삭제 에러", error);
+    }
   };
 
   return (
     <MainLayout>
-      <Modal
-        className="memoAddModal"
-        title="메모 수정"
-        centered
-        open={memoModalOpen}
-        onOk={onEditForm}
-        onCancel={() => setMemoModalOpen(false)}
-        okText="수정"
-        cancelText="취소"
-      >
-        <LineWrap>
-          <Title>
-            <span className="must">*</span>메타 키워드:
-          </Title>
-          <Input
-            placeholder="핵심 키워드"
-            showCount
-            maxLength={20}
-            value={selected.keyword}
-            onChange={(e) =>
-              setSelected({ ...selected, keyword: e.target.value })
-            }
-          />
-        </LineWrap>
-        <LineWrap>
-          <Title>중요한 이유:</Title>
-          <TextArea
-            showCount
-            maxLength={100}
-            value={selected.content}
-            placeholder="위의 키워드가 중요하다고 생각한 이유를 함께 적어놓으면 나중에 활용하는데 도움이 됩니다"
-            onChange={(e) =>
-              setSelected({ ...selected, content: e.target.value })
-            }
-          />
-        </LineWrap>
-        <LineWrap>
-          <Title>주제 태그:</Title>
-          <Select
-            mode="multiple"
-            placeholder="태그를 선택해주세요"
-            options={options}
-            className="tagSelectInput"
-            value={selected.tag}
-            onSelect={(value) =>
-              setSelected({ ...selected, tag: [...selected.tag, value] })
-            }
-            onDeselect={(value) =>
-              setSelected({
-                ...selected,
-                tag: selected.tag.filter((v) => v !== value),
-              })
-            }
-          />
-        </LineWrap>
-      </Modal>
       <Sidebar />
 
       <Contents $empty={!memoList.length}>
@@ -132,15 +110,70 @@ const MainPage = () => {
               key={memo.keyword}
               selected={selected.keyword === memo.keyword}
             >
+              <Modal
+                className="memoAddModal"
+                title="메모 수정"
+                centered
+                open={memoModalOpen}
+                onOk={() => onEditForm(memo)}
+                onCancel={() => setMemoModalOpen(false)}
+                okText="수정"
+                cancelText="취소"
+              >
+                <LineWrap>
+                  <Title>
+                    <span className="must">*</span>메타 키워드:
+                  </Title>
+                  <Input
+                    placeholder="핵심 키워드"
+                    showCount
+                    maxLength={20}
+                    value={selected.keyword}
+                    onChange={(e) =>
+                      setSelected({ ...selected, keyword: e.target.value })
+                    }
+                  />
+                </LineWrap>
+                <LineWrap>
+                  <Title>중요한 이유:</Title>
+                  <TextArea
+                    showCount
+                    maxLength={100}
+                    value={selected.content}
+                    placeholder="위의 키워드가 중요하다고 생각한 이유를 함께 적어놓으면 나중에 활용하는데 도움이 됩니다"
+                    onChange={(e) =>
+                      setSelected({ ...selected, content: e.target.value })
+                    }
+                  />
+                </LineWrap>
+                <LineWrap>
+                  <Title>주제 태그:</Title>
+                  <Select
+                    mode="multiple"
+                    placeholder="태그를 선택해주세요"
+                    options={options}
+                    className="tagSelectInput"
+                    value={selected.tag}
+                    onSelect={(value) =>
+                      setSelected({
+                        ...selected,
+                        tag: [...selected.tag, value],
+                      })
+                    }
+                    onDeselect={(value) =>
+                      setSelected({
+                        ...selected,
+                        tag: selected.tag.filter((v) => v !== value),
+                      })
+                    }
+                  />
+                </LineWrap>
+              </Modal>
               {selected.keyword === memo.keyword ? (
                 <>
                   <CardController>
                     <button onClick={() => setMemoModalOpen(true)}>수정</button>
-                    <button
-                      onClick={() => dispatch(deleteMemoList(memo.keyword))}
-                    >
-                      삭제
-                    </button>
+                    <button onClick={() => onDeleteMemo(memo)}>삭제</button>
                   </CardController>
                   <CardBack onClick={() => handleClickCard(memo)}>
                     <MemoBackContent $content={!!memo.content}>

@@ -19,16 +19,16 @@ const SignUpPage = () => {
     /^(?=.*[ㄱ-ㅎㅏ-ㅣ가-힣A-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/; // 한글, 대문자, 특수문자, 공백 체크
   const pwReg = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"\s]/g; // 특수문자, 공백 체크
 
+  // 아이디 검사
   const handleIdBlur = async (
     e: React.FocusEvent<HTMLInputElement, Element>
   ) => {
     const { value } = e.target;
     try {
-      // JS 아이디 유효성 검사
       if (value.length <= 3 || value.length >= 16) {
         setMessage({
           ...message,
-          idError: "4자 이상, 15자 이하만 가능합니다.",
+          idError: "4~15자의 영문 소문자, 숫자만 사용 가능합니다",
         });
         return;
       }
@@ -41,7 +41,7 @@ const SignUpPage = () => {
       }
       setMessage({ ...message, idError: "" });
 
-      // 서버 아이디 유효성 검사
+      // 요청 코드 (아이디 체크)
       const res = await axios.post("/usernameValid", { username: username });
       if (res.status === 200) {
         setMessage({
@@ -51,20 +51,19 @@ const SignUpPage = () => {
         console.log("ID OK!", res);
       }
     } catch (error) {
-      console.log("ID Failed", error); // NOT_VALID: 아이디 조건 이상
-
+      console.log("/signup Error: 회원가입 에러", error);
       // USERNAME_DUPL: 아이디 중복
-      setMessage({
-        ...message,
-        idError: "사용중인 아이디입니다",
-      });
+      // alert("사용중인 아이디입니다");
+
+      // NOT_VALID: 아이디 조건 이상
+      // alert("사용하라 수 없는 아이디입니다. 다른 아이디를 입력해주세요");
     }
   };
 
+  // 비밀번호 검사
   const handlePwBlur = (e: React.FocusEvent<HTMLInputElement, Element>) => {
     const { value } = e.target;
     try {
-      // JS 비밀번호 유효성 검사
       if (value.length <= 5 || value.length >= 16) {
         setMessage({
           ...message,
@@ -81,7 +80,7 @@ const SignUpPage = () => {
       }
       setMessage({ ...message, pwError: "" });
     } catch (erorr) {
-      // 에러처리
+      // 에러 처리
     }
   };
 
@@ -96,6 +95,8 @@ const SignUpPage = () => {
       }
       console.log("회원가입 요청");
       const data = { username: username, password: password };
+
+      // 요청 코드 (회원가입)
       const res = await axios.post("/signUp", data);
       if (res.status === 200) {
         console.log("회원가입 완료", res);

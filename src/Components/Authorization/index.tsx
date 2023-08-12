@@ -12,7 +12,7 @@ const Authorization = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!auth) {
-      console.log("권한이 없습니다");
+      alert("권한이 없습니다");
       navigate("/");
     }
   }, [auth, navigate]);

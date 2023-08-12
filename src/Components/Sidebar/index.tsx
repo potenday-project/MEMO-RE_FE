@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 import AddButton from "../Icons/AddButton";
 import DeleteButton from "../Icons/DeleteButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { message, Modal, Input, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import {
@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { deleteTagList, setTagList } from "../../features/tagList/tagListSlice";
 import { setMemoList } from "../../features/memoList/memoListSlice";
+import axios from "axios";
 
 const ADD = "add";
 const DEL = "del";
@@ -76,8 +77,8 @@ const Sidebar = () => {
     if (deletable) setDeletable(false);
   };
 
-  // 추가/삭제 버튼
-  const handleEditButton = (type: string) => {
+  // 태그 추가/삭제 버튼
+  const handleEditButton = async (type: string) => {
     if (type === ADD) {
       if (tagList.length >= 10) {
         showMessage("✅ 10개 태그를 모두 입력하셨어요!");
@@ -89,15 +90,42 @@ const Sidebar = () => {
         showMessage("👀 태그를 입력해주세요");
         return;
       }
+
       dispatch(setTagList(tag));
       setTag("");
       setInputCount(0);
       showMessage("✨ 태그를 추가했어요!");
+
+      // 요청 코드 (태그 추가)
+      try {
+        const res = await axios.post("/tag", { name: tag });
+        if (res.status === 200) {
+          console.log("태그 추가 Response", res);
+        }
+      } catch (error) {
+        // 에러 처리
+        console.log("태그 추가 에러", error);
+        // USER_NOT_FOUND: 로그인된 유저가 아님
+        // NOT_VALID: 태그 양식 문제
+      }
     }
     if (type === DEL) {
       if (!checkedList.length) return;
       showConfirm();
       setCheckedList([]);
+
+      // 요청 코드 (태그 삭제)
+      try {
+        const res = await axios.delete(`/tag?name=${tag}`);
+        if (res.status === 200) {
+          console.log("태그 삭제 Response", res);
+        }
+      } catch (error) {
+        // 에러 처리
+        console.log("태그 삭제 에러", error);
+        // USER_NOT_FOUND: 로그인된 유저가 아님
+        // NOT_VALID: 태그 양식 문제
+      }
     }
   };
 
@@ -123,11 +151,25 @@ const Sidebar = () => {
   };
 
   // 메모 등록
-  const onSubmitForm = () => {
+  const onSubmitForm = async () => {
     if (!modalForm.keyword) return;
     dispatch(setMemoList(modalForm));
-    setModalForm({ ...modalForm, keyword: "", content: "", tag: [] });
-    setMemoModalOpen(false);
+
+    // 요청 코드 (메모 추가)
+    try {
+      setModalForm({ ...modalForm, keyword: "", content: "", tag: [] });
+      setMemoModalOpen(false);
+
+      const res = await axios.post("/memo", modalForm);
+      if (res.status === 200) {
+        console.log("메모 추가 Response", res);
+      }
+    } catch (error) {
+      console.log("메모 추가 에러", error);
+      // DUPLICATED: 중복된 키워드
+      // SIZE: 태그가 하나도 오지 않음
+      // BAD: 키워드나 이유 중 양식이 잘못됨
+    }
   };
 
   return (
