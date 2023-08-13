@@ -6,9 +6,7 @@ import { useNavigate } from "react-router-dom";
 const Authorization = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
 
-  // const auth = useSelector((state: RootState) => state.accessToken);
-  const auth = true;
-  console.log("is Auth ?", auth);
+  const auth = useSelector((state: RootState) => state.accessToken);
 
   useEffect(() => {
     if (!auth) {

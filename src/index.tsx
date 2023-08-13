@@ -8,7 +8,7 @@ import { store } from "./app/store";
 import { routerInfo } from "./router";
 import { ConfigProvider } from "antd";
 
-axios.defaults.baseURL = "http://alwaysalsoholiday.xyz:8080";
+axios.defaults.baseURL = "http://alwaysalsoholiday.xyz";
 axios.defaults.withCredentials = true;
 
 const router = createBrowserRouter(routerInfo);

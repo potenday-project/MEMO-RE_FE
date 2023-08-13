@@ -2,18 +2,18 @@ import { styled } from "styled-components";
 import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { StyledInput } from "../../components/CommonInput";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { TAG_NOT_VALID, USER_NOT_FOUND } from "../../config/errorCode";
 
 type TagsType = string[];
 
 const TagPage = () => {
   const [currentValue, setCurrentValue] = useState("");
   const [tags, setTags] = useState<TagsType>([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {}, [tags]);
-
-  // 처음 3개 태그 입력
   const addInitialTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.nativeEvent.isComposing) return; // 엔터 이벤트 중복 방지
     if (e.key === "Enter") {
@@ -29,20 +29,26 @@ const TagPage = () => {
 
   const handleStart = async () => {
     if (tags.length < 3) {
-      alert("3개의 주제를 입력해주세요!✨");
+      alert("3개의 주제를 입력해주세요!");
     }
-
     // 요청 코드 (메인 3개 태그 추가)
     try {
-      const res = await axios.post("/", tags);
+      const res = await axios.post("/", {
+        tagA: tags[0],
+        tagB: tags[1],
+        tagC: tags[2],
+      });
       if (res.status === 200) {
-        console.log("메인 3개 태그 Response", res);
+        navigate("/main");
       }
-    } catch (error) {
-      // 에러 처리
-      console.log("메인 3개 태그 추가 에러", error);
-      // USER_NOT_FOUND : 로그인 유저가 아닐 때
-      // TAG_NOT_VALID : 태그 길이가 너무 김
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === USER_NOT_FOUND) {
+        navigate("/");
+      }
+      if (response === TAG_NOT_VALID) {
+        alert("태그 길이가 길어요! 다시 입력해주세요");
+      }
     }
   };
 
@@ -57,6 +63,7 @@ const TagPage = () => {
           <TagInput
             type="text"
             placeholder="#제외 10자이내"
+            maxLength={10}
             onChange={(e) => setCurrentValue(e.target.value)}
             onKeyDownCapture={(e) => addInitialTag(e)}
             value={currentValue}

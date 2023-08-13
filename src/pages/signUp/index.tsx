@@ -4,6 +4,7 @@ import axios from "axios";
 import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { useNavigate } from "react-router-dom";
+import { NOT_VALID, USERNAME_DUPL } from "../../config/errorCode";
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
@@ -48,40 +49,36 @@ const SignUpPage = () => {
           ...message,
           idSuccess: "사용 가능한 아이디입니다",
         });
-        console.log("ID OK!", res);
       }
-    } catch (error) {
-      console.log("/signup Error: 회원가입 에러", error);
-      // USERNAME_DUPL: 아이디 중복
-      // alert("사용중인 아이디입니다");
-
-      // NOT_VALID: 아이디 조건 이상
-      // alert("사용하라 수 없는 아이디입니다. 다른 아이디를 입력해주세요");
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === NOT_VALID) {
+        alert("사용할 수 없는 아이디입니다. 다른 아이디를 입력해주세요.");
+      }
+      if (response === USERNAME_DUPL) {
+        alert("사용중인 아이디입니다.");
+      }
     }
   };
 
   // 비밀번호 검사
   const handlePwBlur = (e: React.FocusEvent<HTMLInputElement, Element>) => {
     const { value } = e.target;
-    try {
-      if (value.length <= 5 || value.length >= 16) {
-        setMessage({
-          ...message,
-          pwError: "6자 이상, 15글자 이하만 가능합니다.",
-        });
-        return;
-      }
-      if (pwReg.test(value)) {
-        setMessage({
-          ...message,
-          pwError: "특수문자, 공백을 포함할 수 없습니다.",
-        });
-        return;
-      }
-      setMessage({ ...message, pwError: "" });
-    } catch (erorr) {
-      // 에러 처리
+    if (value.length <= 5 || value.length >= 16) {
+      setMessage({
+        ...message,
+        pwError: "6~15자의 영문, 숫자만 이용 가능합니다.",
+      });
+      return;
     }
+    if (pwReg.test(value)) {
+      setMessage({
+        ...message,
+        pwError: "특수문자, 공백을 포함할 수 없습니다.",
+      });
+      return;
+    }
+    setMessage({ ...message, pwError: "" });
   };
 
   const onSignUp = async () => {
@@ -93,17 +90,22 @@ const SignUpPage = () => {
       if (message.idError || message.pwError) {
         return;
       }
-      console.log("회원가입 요청");
-      const data = { username: username, password: password };
 
       // 요청 코드 (회원가입)
-      const res = await axios.post("/signUp", data);
+      const res = await axios.post("/signUp", { username, password });
       if (res.status === 200) {
-        console.log("회원가입 완료", res);
         navigate("/");
       }
-    } catch (error) {
-      console.log("회원가입 에러", error);
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === NOT_VALID) {
+        alert(
+          "아이디 또는 비밀번호의 형식이 올바르지 않습니다. 다시 확인해주세요."
+        );
+      }
+      if (response === USERNAME_DUPL) {
+        alert("사용중인 아이디입니다.");
+      }
     }
   };
 

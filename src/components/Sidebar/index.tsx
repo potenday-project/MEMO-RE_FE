@@ -14,24 +14,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteTagList, setTagList } from "../../features/tagList/tagListSlice";
 import { setMemoList } from "../../features/memoList/memoListSlice";
 import axios from "axios";
+import {
+  BAD,
+  DUPLICATED,
+  NOT_VALID,
+  SIZE,
+  USER_NOT_FOUND,
+} from "../../config/errorCode";
+import { useNavigate } from "react-router-dom";
 
-const ADD = "add";
-const DEL = "del";
+const ADD = "ADD";
+const DEL = "DEL";
 
 const Sidebar = () => {
   const [addable, setAddable] = useState(false);
   const [deletable, setDeletable] = useState(false);
   const [tag, setTag] = useState("");
-
   const [inputCount, setInputCount] = useState(0);
   const [checkedTag, setCheckedTag] = useState("");
-
   const [memoModalOpen, setMemoModalOpen] = useState(false);
   const [modalForm, setModalForm] = useState<FormProps>({
     keyword: "",
     content: "",
     tag: [],
   });
+  const [page, setPage] = useState(0); // 요청할 페이지 상태값
 
   const dispatch = useDispatch();
   const tagList = useSelector((state: RootState) => state.tagList);
@@ -41,6 +48,7 @@ const Sidebar = () => {
   const options: object[] = tagList.map((tagVal) => {
     return { label: tagVal, value: tagVal };
   });
+  const navigate = useNavigate();
 
   const isEditing = addable === true || deletable === true ? true : false;
 
@@ -92,21 +100,22 @@ const Sidebar = () => {
         return;
       }
 
-      dispatch(setTagList(tag));
-      setTag("");
-      setInputCount(0);
-      showMessage("✨ 태그를 추가했어요!");
-
       // 요청 코드 (태그 추가)
       try {
         const res = await axios.post("/tag", { name: tag });
         if (res.status === 200) {
-          console.log("태그 추가 Response", res);
+          setTag("");
+          setInputCount(0);
+          showMessage("✨ 태그를 추가했어요!");
         }
-      } catch (error) {
-        console.log("태그 추가 에러", error);
-        // USER_NOT_FOUND: 로그인된 유저가 아님
-        // NOT_VALID: 태그 양식 문제
+      } catch (e: any) {
+        const { response } = e.response.data;
+        if (response === USER_NOT_FOUND) {
+          navigate("/");
+        }
+        if (response === NOT_VALID) {
+          showMessage("😵‍💫 태그 추가에 실패했어요");
+        }
       }
     }
     if (type === DEL) {
@@ -164,12 +173,27 @@ const Sidebar = () => {
       if (res.status === 200) {
         console.log("메모 추가 Response", res);
       }
-    } catch (error) {
-      console.log("메모 추가 에러", error);
-      // DUPLICATED: 중복된 키워드
-      // SIZE: 태그가 하나도 오지 않음
-      // BAD: 키워드나 이유 중 양식이 잘못됨
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === DUPLICATED) {
+        alert("중복된 키워드입니다. 다른 키워드를 입력해주세요");
+      }
+      if (response === BAD) {
+        alert("메모 양식이 올바르지 않습니다. 다시 확인해주세요");
+      }
     }
+  };
+
+  // 메모 조회
+  const getTagMemo = async (tagName: string) => {
+    // 요청 코드 (태그별 메모 조회)
+    try {
+      const res = await axios.get(`/memo?tag=${tagName}&page=${page}`);
+      if (res.status === 200) {
+        dispatch(setMemoList(res));
+        setMemoList(res);
+      }
+    } catch (e: any) {}
   };
 
   return (
@@ -284,7 +308,9 @@ const Sidebar = () => {
         ) : (
           <TagList $isEditing={addable}>
             {tagList.map((tag, idx) => (
-              <Tag key={idx}>#{tag}</Tag>
+              <Tag key={idx} onClick={() => getTagMemo(tag)}>
+                #{tag}
+              </Tag>
             ))}
           </TagList>
         )}

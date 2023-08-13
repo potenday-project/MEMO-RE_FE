@@ -5,27 +5,31 @@ import { setToken } from "../../features/token/accessTokenSlice";
 import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { styled } from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { LOGIN_FAIL } from "../../config/errorCode";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
 
+  const navigate = useNavigate();
+
   const onLogin = async () => {
-    const data = { username, password };
     try {
       // 요청 코드 (로그인)
-      const res = await axios.post("/login", data);
+      const res = await axios.post("/login", { username, password });
       const { token } = res.data;
       dispatch(setToken(token));
-      console.log("Login response", res);
+      navigate("/tag");
 
       // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } catch (error) {
-      console.log("Login Error", error);
-      // BAD_USERNAME: 아이디 이상
-      // BAD_PWD: 패스워드 이상
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === LOGIN_FAIL) {
+        alert("아이디 또는 비밀번호를 잘못입력했습니다. 다시 확인해주세요.");
+      }
     }
   };
 

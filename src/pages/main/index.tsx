@@ -19,6 +19,7 @@ import {
 } from "../../features/memoList/memoListSlice";
 import axios from "axios";
 import { useInView } from "react-intersection-observer";
+import { BAD, NOT_FOUND } from "../../config/errorCode";
 
 const MainPage = () => {
   const [selected, setSelected] = useState<FormProps>({
@@ -27,7 +28,6 @@ const MainPage = () => {
     tag: [],
   });
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [data, setData] = useState<FormProps[]>([]); // GET 조회해온 값
   const [page, setPage] = useState(0); // 요청할 페이지 상태값
   const [ref, inView] = useInView();
 
@@ -38,25 +38,20 @@ const MainPage = () => {
   );
 
   const getListData = async () => {
-    // 요청 코드 (메모 조회)
+    // 요청 코드 (전체 메모 조회)
     try {
-      const res = await axios.get(`/memo?pageNumber=${page}`);
-      console.log("메모 조회", res);
+      const res = await axios.get(`/memo?tag&page=${page}`);
       if (res.status === 200) {
-        // 받아오는 값 확인후에
-        // dispatch로 메모 리스트 상태관리 코드 작성하기
         dispatch(setMemoList(res));
-        setPage((prev) => prev + 1);
+        setMemoList(res);
       }
-    } catch (error) {
-      console.log("메모 조회 에러", error);
-    }
+    } catch (e: any) {}
   };
 
   useEffect(() => {
     if (inView) {
       if (memoList.length >= 12) {
-        // getListData();
+        getListData();
         dispatch(
           setMemoList({
             keyword: `더미${page}`,
@@ -67,6 +62,7 @@ const MainPage = () => {
         setPage((prev) => prev + 1);
       }
     }
+    getListData();
   }, [inView]);
 
   // 태그 옵션
@@ -102,21 +98,20 @@ const MainPage = () => {
 
     // 요청 코드 (메모 수정)
     try {
-      const res = await axios.patch("/memo", {
+      await axios.patch("/memo", {
         originKey: curMemo.keyword,
         newKey: selected.keyword,
         content: selected.content,
         tag: selected.tag,
       });
-      if (res.status === 200) {
-        console.log("/mainSidebar - 태그 등록 요청!", res);
-        // 메모리스트 다시 가져오기
+    } catch (e: any) {
+      const { response } = e.response.data;
+      if (response === NOT_FOUND) {
+        alert("메모가 존재하지 않습니다");
       }
-    } catch (error) {
-      // 에러 처리
-      console.log("/main Sidebar 태그 추가 에러", error);
-      // NOT_FOUND: 해당 키워드 메모가 없음
-      // BAD: 본인 메모가 아님
+      if (response === BAD) {
+        alert("메모를 수정할 수 없습니다");
+      }
     }
   };
 
@@ -125,12 +120,9 @@ const MainPage = () => {
     // 요청 코드 (메모 삭제)
     try {
       dispatch(deleteMemoList(memo.keyword));
-      const res = await axios.delete(`/tag?name=${memo.keyword}`);
-      if (res.status === 200) {
-        console.log("메모 삭제 Response", res);
-      }
-    } catch (error) {
-      console.log("메모 삭제 에러", error);
+      await axios.delete(`/tag?name=${memo.keyword}`);
+    } catch (e: any) {
+      const { response } = e.response.data;
     }
   };
 
