@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setToken } from "../../features/token/accessTokenSlice";
+import { clearToken, setToken } from "../../features/token/accessTokenSlice";
 import GridLayout from "../../components/GridLayout";
 import SubmitButton from "../../components/SubmitButton";
 import { styled } from "styled-components";
@@ -21,11 +21,17 @@ const LoginPage = () => {
       const res = await axios.post("/login", { username, password });
       const { token } = res.data;
       dispatch(setToken(token));
-      navigate("/tag");
 
       // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // 태그 리스트 조회 (요청 코드) - 예정
+      // navigate("/tag"); // 보유중인 태그가 0개 일 때
+      // navigate("/main"); // 태그가 있을 때
     } catch (e: any) {
+      // 로그인 실패 시 auth clear
+      axios.defaults.headers.common["Authorization"] = "";
+      dispatch(clearToken);
       const { response } = e.response.data;
       if (response === LOGIN_FAIL) {
         alert("아이디 또는 비밀번호를 잘못입력했습니다. 다시 확인해주세요.");

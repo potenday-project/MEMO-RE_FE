@@ -20,8 +20,10 @@ import {
 import axios from "axios";
 import { useInView } from "react-intersection-observer";
 import { BAD, NOT_FOUND } from "../../config/errorCode";
+import useUpdateTag from "../../hooks/useUpdateTag";
 
 const MainPage = () => {
+  const [prevTag, setPrevTag] = useState<string[]>([]);
   const [selected, setSelected] = useState<FormProps>({
     keyword: "",
     content: "",
@@ -37,15 +39,20 @@ const MainPage = () => {
     (state: RootState) => state.memoList
   );
 
+  const updatedTag = useUpdateTag(prevTag, selected.tag);
+
   const getListData = async () => {
     // 요청 코드 (전체 메모 조회)
     try {
-      const res = await axios.get(`/memo?tag&page=${page}`);
+      const res = await axios.get(`/main/main?tag&page=${page}`);
       if (res.status === 200) {
-        dispatch(setMemoList(res));
+        console.log("전체 메모조회 결과", res);
+        // dispatch(setMemoList(res));
         setMemoList(res);
       }
-    } catch (e: any) {}
+    } catch (e: any) {
+      console.log("전체 메모 조회 에러 ", e);
+    }
   };
 
   useEffect(() => {
@@ -93,17 +100,20 @@ const MainPage = () => {
 
   // 메모 수정
   const onEditForm = async (curMemo: FormProps) => {
-    dispatch(updateMemo(selected));
-    setEditModalOpen(false);
-
     // 요청 코드 (메모 수정)
     try {
-      await axios.patch("/memo", {
+      dispatch(updateMemo(selected));
+      const res = await axios.put("/memo", {
         originKey: curMemo.keyword,
         newKey: selected.keyword,
         content: selected.content,
-        tag: selected.tag,
+        updatedTag,
       });
+      if (res.status === 200) {
+        setPrevTag([]);
+        setEditModalOpen(false);
+        // 메모 수정 후 화면 다시 그려지기
+      }
     } catch (e: any) {
       const { response } = e.response.data;
       if (response === NOT_FOUND) {
@@ -117,12 +127,18 @@ const MainPage = () => {
 
   // 메모 삭제
   const onDeleteMemo = async (memo: FormProps) => {
-    // 요청 코드 (메모 삭제)
+    // 요청 코드 (메모 삭제) - 예정
     try {
       dispatch(deleteMemoList(memo.keyword));
-      await axios.delete(`/tag?name=${memo.keyword}`);
+      await axios.delete("/memo");
     } catch (e: any) {
       const { response } = e.response.data;
+      if (response === NOT_FOUND) {
+        alert("메모가 존재하지 않습니다");
+      }
+      if (response === BAD) {
+        alert("메모 삭제 권한이 없습니다");
+      }
     }
   };
 
@@ -198,7 +214,14 @@ const MainPage = () => {
               {selected.keyword === memo.keyword ? (
                 <>
                   <CardController>
-                    <button onClick={() => setEditModalOpen(true)}>수정</button>
+                    <button
+                      onClick={() => {
+                        setEditModalOpen(true);
+                        setPrevTag([...prevTag, ...memo.tag]);
+                      }}
+                    >
+                      수정
+                    </button>
                     <button onClick={() => onDeleteMemo(memo)}>삭제</button>
                   </CardController>
                   <MemoBack onClick={() => handleClickCard(memo)}>

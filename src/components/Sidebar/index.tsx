@@ -16,7 +16,7 @@ import { setMemoList } from "../../features/memoList/memoListSlice";
 import axios from "axios";
 import {
   BAD,
-  DUPLICATED,
+  DUPLICATE,
   NOT_VALID,
   SIZE,
   USER_NOT_FOUND,
@@ -102,10 +102,12 @@ const Sidebar = () => {
 
       // 요청 코드 (태그 추가)
       try {
+        dispatch(setTagList(tag));
+        setTag("");
+        setInputCount(0);
+
         const res = await axios.post("/tag", { name: tag });
         if (res.status === 200) {
-          setTag("");
-          setInputCount(0);
           showMessage("✨ 태그를 추가했어요!");
         }
       } catch (e: any) {
@@ -116,6 +118,9 @@ const Sidebar = () => {
         if (response === NOT_VALID) {
           showMessage("😵‍💫 태그 추가에 실패했어요");
         }
+        if (response === DUPLICATE) {
+          showMessage("🤔 이미 입력한 태그예요. 다시 입력해주세요");
+        }
       }
     }
     if (type === DEL) {
@@ -123,9 +128,9 @@ const Sidebar = () => {
       showConfirm();
       setCheckedTag("");
 
-      // 요청 코드 (태그 삭제)
+      // 요청 코드 (태그 삭제) - 예정
       try {
-        const res = await axios.delete(`/tag?name=${tag}`);
+        const res = await axios.delete("/tag");
         if (res.status === 200) {
           console.log("태그 삭제 Response", res);
         }
@@ -161,21 +166,28 @@ const Sidebar = () => {
 
   // 메모 등록
   const onSubmitForm = async () => {
-    if (!modalForm.keyword) return;
-    dispatch(setMemoList(modalForm));
+    if (!modalForm.keyword) {
+      alert("키워드를 입력해주세요!");
+      return;
+    }
 
     // 요청 코드 (메모 추가)
     try {
-      setModalForm({ ...modalForm, keyword: "", content: "", tag: [] });
-      setMemoModalOpen(false);
-
+      dispatch(setMemoList(modalForm));
       const res = await axios.post("/memo", modalForm);
       if (res.status === 200) {
-        console.log("메모 추가 Response", res);
+        setModalForm({ ...modalForm, keyword: "", content: "", tag: [] });
+        setMemoModalOpen(false);
+        // 메모 추가 - 메모 조회 (추가될 예정)
+        // const getRes = await axios.get(`/main/main?tag=태그&page=${page}`);
+        // if (getRes.status === 200) {
+        //   dispatch(setMemoList(res));
+        //   setMemoList(res);
+        // }
       }
     } catch (e: any) {
       const { response } = e.response.data;
-      if (response === DUPLICATED) {
+      if (response === DUPLICATE) {
         alert("중복된 키워드입니다. 다른 키워드를 입력해주세요");
       }
       if (response === BAD) {
@@ -205,7 +217,14 @@ const Sidebar = () => {
         centered
         open={memoModalOpen}
         onOk={onSubmitForm}
-        onCancel={() => setMemoModalOpen(false)}
+        onCancel={() => {
+          setModalForm({
+            keyword: "",
+            content: "",
+            tag: [],
+          });
+          setMemoModalOpen(false);
+        }}
         okText="등록"
         cancelText="취소"
       >
